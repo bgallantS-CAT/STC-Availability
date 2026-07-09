@@ -1,156 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>STC Availability</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background: white;
-        }
-
-        h1 {
-            text-align: center;
-        }
-
-        #calendar {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 10px;
-        }
-
-        .day {
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 6px;
-            text-align: center;
-        }
-
-        .green {
-            background: #d5f5d5;
-        }
-
-        .amber {
-            background: #ffe7b3;
-        }
-
-        .red {
-            background: #ffd6d6;
-        }
-
-        .date {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-    </style>
-</head>
-
-<body>
-
-<h1>STC Availability</h1>
-
-<div id="calendar"></div>
-
-<script>
-
-fetch('availability.json')
-.then(response => response.json())
-.then(data => {
-
-    const calendar = document.getElementById('calendar');
-
-    const firstDate = new Date(data[0].date);
-
-    const year = firstDate.getFullYear();
-    const month = firstDate.getMonth();
-
-    const monthName = firstDate.toLocaleString(
-        'default',
-        { month: 'long' }
-    );
-
-    // Build fast lookup table
-    const availability = {};
-
-    data.forEach(day => {
-        availability[day.date] = day.status;
-    });
-
-    const daysInMonth = new Date(
-        year,
-        month + 1,
-        0
-    ).getDate();
-
-    let html = `
-        <h2>${monthName} ${year}</h2>
-
-        <div class="grid">
-            <div class="header">Mon</div>
-            <div class="header">Tue</div>
-            <div class="header">Wed</div>
-            <div class="header">Thu</div>
-            <div class="header">Fri</div>
-            <div class="header">Sat</div>
-            <div class="header">Sun</div>
-    `;
-
-    const firstDay = new Date(year, month, 1);
-
-    let startDay = firstDay.getDay();
-
-    if (startDay === 0)
-    {
-        startDay = 7;
-    }
-
-    for(let i = 1; i < startDay; i++)
-    {
-        html += '<div class="empty"></div>';
-    }
-
-    for(let day = 1; day <= daysInMonth; day++)
-    {
-        const dateString =
-            `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-
-        let status = availability[dateString] || 'unknown';
-
-        html += `
-            <div class="day ${status}">
-                <div class="number">${day}</div>
-            </div>
-        `;
-    }
-
-    html += '</div>';
-
-    calendar.innerHTML = html;
-
-})
-.catch(error => {
-
-    document.getElementById('calendar').innerHTML =
-        '<p>Unable to load availability data.</p>';
-
-    console.error(error);
-
-});
-
-</script>
+<title>STC Availability</title>
 
 <style>
 
 body{
     font-family:Segoe UI,Arial,sans-serif;
-    max-width:900px;
+    max-width:1000px;
     margin:auto;
     padding:20px;
 }
 
-h1,h2{
+h1{
     text-align:center;
+}
+
+.month-nav{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:15px;
+    margin-bottom:15px;
+}
+
+.month-nav button{
+    padding:8px 16px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    background:#005eaa;
+    color:white;
+}
+
+.legend{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+}
+
+.legend-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.legend-box{
+    width:16px;
+    height:16px;
+    border-radius:3px;
 }
 
 .grid{
@@ -169,6 +70,7 @@ h1,h2{
     height:80px;
     border-radius:6px;
     position:relative;
+    border:1px solid #ccc;
 }
 
 .number{
@@ -194,11 +96,186 @@ h1,h2{
     background:#efefef;
 }
 
+.today{
+    border:3px solid #005eaa;
+}
+
 .empty{
     background:none;
+    border:none;
+}
+
+@media (max-width: 600px)
+{
+    .day{
+        height:60px;
+    }
 }
 
 </style>
+
+</head>
+<body>
+
+<h1>STC Availability</h1>
+
+<div class="legend">
+    <div class="legend-item">
+        <span class="legend-box green"></span>
+        Available
+    </div>
+
+    <div class="legend-item">
+        <span class="legend-box amber"></span>
+        Limited Availability
+    </div>
+
+    <div class="legend-item">
+        <span class="legend-box red"></span>
+        Unavailable
+    </div>
+</div>
+
+<div class="month-nav">
+    <button id="prevMonth">◀</button>
+    <h2 id="monthTitle"></h2>
+    <button id="nextMonth">▶</button>
+</div>
+
+<div id="calendar"></div>
+
+<script>
+
+let availabilityData = [];
+let currentMonth = null;
+let currentYear = null;
+
+fetch('availability.json')
+.then(response => response.json())
+.then(data => {
+
+    availabilityData = data;
+
+    const firstDate = new Date(data[0].date);
+
+    currentMonth = firstDate.getMonth();
+    currentYear = firstDate.getFullYear();
+
+    renderCalendar();
+
+});
+
+function renderCalendar()
+{
+    const calendar = document.getElementById('calendar');
+
+    const availability = {};
+
+    availabilityData.forEach(day => {
+        availability[day.date] = day.availability || 'unknown';
+    });
+
+    const monthName =
+        new Date(currentYear,currentMonth,1)
+        .toLocaleString('default',{month:'long'});
+
+    document.getElementById('monthTitle').innerText =
+        `${monthName} ${currentYear}`;
+
+    const daysInMonth =
+        new Date(currentYear,currentMonth+1,0).getDate();
+
+    let html = `
+        <div class="grid">
+
+            <div class="header">Mon</div>
+            <div class="header">Tue</div>
+            <div class="header">Wed</div>
+            <div class="header">Thu</div>
+            <div class="header">Fri</div>
+            <div class="header">Sat</div>
+            <div class="header">Sun</div>
+    `;
+
+    const firstDay =
+        new Date(currentYear,currentMonth,1);
+
+    let startDay = firstDay.getDay();
+
+    if(startDay===0)
+    {
+        startDay=7;
+    }
+
+    for(let i=1;i<startDay;i++)
+    {
+        html += `<div class="empty"></div>`;
+    }
+
+    const today = new Date();
+
+    for(let day=1;day<=daysInMonth;day++)
+    {
+        const dateString =
+            `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+        const status =
+            availability[dateString] || 'unknown';
+
+        const isToday =
+            today.getFullYear() === currentYear
+            &&
+            today.getMonth() === currentMonth
+            &&
+            today.getDate() === day;
+
+        html += `
+            <div
+                class="day ${status} ${isToday ? 'today' : ''}"
+                title="${status.toUpperCase()}">
+
+                <div class="number">${day}</div>
+
+            </div>
+        `;
+    }
+
+    html += '</div>';
+
+    calendar.innerHTML = html;
+}
+
+document
+.getElementById('prevMonth')
+.addEventListener('click', () =>
+{
+    currentMonth--;
+
+    if(currentMonth < 0)
+    {
+        currentMonth = 11;
+        currentYear--;
+    }
+
+    renderCalendar();
+});
+
+document
+.getElementById('nextMonth')
+.addEventListener('click', () =>
+{
+    currentMonth++;
+
+    if(currentMonth > 11)
+    {
+        currentMonth = 0;
+        currentYear++;
+    }
+
+    renderCalendar();
+});
+
+</script>
 
 </body>
 </html>
