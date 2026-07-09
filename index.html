@@ -50,53 +50,125 @@
 
 <h1>STC Availability</h1>
 
-<div id="calendar">
-    Loading...
-</div>
+<div id="calendar"></div>
 
 <script>
 
 fetch('availability.json')
-    .then(response => response.json())
-    .then(data => {
+.then(response => response.json())
+.then(data => {
 
-        const calendar = document.getElementById('calendar');
-        calendar.innerHTML = '';
+    const calendar = document.getElementById('calendar');
 
-        data.forEach(day => {
+    const firstDate = new Date(data[0].date);
 
-            const box = document.createElement('div');
+    const year = firstDate.getFullYear();
+    const month = firstDate.getMonth();
 
-            box.classList.add('day');
-
-            if (day.status === 'green')
-                box.classList.add('green');
-
-            if (day.status === 'amber')
-                box.classList.add('amber');
-
-            if (day.status === 'red')
-                box.classList.add('red');
-
-            box.innerHTML =
-                '<div class="date">' + day.date + '</div>' +
-                '<div>' + day.status.toUpperCase() + '</div>';
-
-            calendar.appendChild(box);
-
-        });
-
-    })
-    .catch(error => {
-
-        document.getElementById('calendar').innerHTML =
-            'Unable to load availability data';
-
-        console.error(error);
-
+    const monthName = firstDate.toLocaleString('default', {
+        month: 'long'
     });
 
+    let html = `
+        <h2>${monthName} ${year}</h2>
+
+        <div class="grid">
+            <div class="header">Mon</div>
+            <div class="header">Tue</div>
+            <div class="header">Wed</div>
+            <div class="header">Thu</div>
+            <div class="header">Fri</div>
+            <div class="header">Sat</div>
+            <div class="header">Sun</div>
+    `;
+
+    const firstDay = new Date(year, month, 1);
+
+    let startDay = firstDay.getDay();
+
+    if (startDay === 0) startDay = 7;
+
+    for(let i = 1; i < startDay; i++)
+    {
+        html += `<div class="empty"></div>`;
+    }
+
+    for(let day of data)
+    {
+        const d = new Date(day.date);
+
+        let colour = day.status;
+
+        html += `
+            <div class="day ${colour}">
+                <div class="number">${d.getDate()}</div>
+            </div>
+        `;
+    }
+
+    html += "</div>";
+
+    calendar.innerHTML = html;
+
+});
+
 </script>
+
+<style>
+
+body{
+    font-family:Segoe UI,Arial,sans-serif;
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+h1,h2{
+    text-align:center;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:5px;
+}
+
+.header{
+    text-align:center;
+    font-weight:bold;
+    padding:8px;
+}
+
+.day{
+    height:80px;
+    border-radius:6px;
+    position:relative;
+}
+
+.number{
+    position:absolute;
+    top:8px;
+    right:10px;
+    font-weight:bold;
+}
+
+.green{
+    background:#d4edda;
+}
+
+.amber{
+    background:#fff3cd;
+}
+
+.red{
+    background:#f8d7da;
+}
+
+.empty{
+    background:none;
+}
+
+</style>
 
 </body>
 </html>
