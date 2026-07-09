@@ -2,10 +2,101 @@
 <html>
 <head>
     <title>STC Availability</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: white;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #calendar {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .day {
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .green {
+            background: #d5f5d5;
+        }
+
+        .amber {
+            background: #ffe7b3;
+        }
+
+        .red {
+            background: #ffd6d6;
+        }
+
+        .date {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
+
 <body>
+
+<h1>STC Availability</h1>
+
 <div id="calendar">
-Loading...
+    Loading...
 </div>
+
+<script>
+
+fetch('availability.json')
+    .then(response => response.json())
+    .then(data => {
+
+        const calendar = document.getElementById('calendar');
+        calendar.innerHTML = '';
+
+        data.forEach(day => {
+
+            const box = document.createElement('div');
+
+            box.classList.add('day');
+
+            if (day.status === 'green')
+                box.classList.add('green');
+
+            if (day.status === 'amber')
+                box.classList.add('amber');
+
+            if (day.status === 'red')
+                box.classList.add('red');
+
+            box.innerHTML =
+                '<div class="date">' + day.date + '</div>' +
+                '<div>' + day.status.toUpperCase() + '</div>';
+
+            calendar.appendChild(box);
+
+        });
+
+    })
+    .catch(error => {
+
+        document.getElementById('calendar').innerHTML =
+            'Unable to load availability data';
+
+        console.error(error);
+
+    });
+
+</script>
+
 </body>
 </html>
