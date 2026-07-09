@@ -30,5 +30,4 @@
   { "date":"2026-07-29", "status":"green" },
   { "date":"2026-07-30", "status":"red" },
   { "date":"2026-07-31", "status":"green" }
-  { "date":"2026-08-31", "status":"red" }
 ]
