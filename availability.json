@@ -1,10 +1,8 @@
 [
-  {
-    "date": "2026-07-14",
-    "status": "red"
-  },
-  {
-    "date": "2026-07-15",
-    "status": "green"
-  }
+  { "date":"2026-07-01", "status":"green" },
+  { "date":"2026-07-02", "status":"green" },
+  { "date":"2026-07-03", "status":"amber" },
+  { "date":"2026-07-04", "status":"green" },
+  { "date":"2026-07-05", "status":"red" },
+  { "date":"2026-07-06", "status":"green" }
 ]
