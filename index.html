@@ -112,8 +112,19 @@ h1{
     }
 }
 
-</style>
+#monthSelect{
+    padding:8px 12px;
+    border-radius:5px;
+    border:1px solid #ccc;
+}
 
+.month-nav button:disabled{
+    opacity:0.4;
+    cursor:not-allowed;
+}
+
+</style>
+    
 </head>
 <body>
 
@@ -138,7 +149,11 @@ h1{
 
 <div class="month-nav">
     <button id="prevMonth">◀</button>
+
     <h2 id="monthTitle"></h2>
+
+    <select id="monthSelect"></select>
+
     <button id="nextMonth">▶</button>
 </div>
 
@@ -149,6 +164,9 @@ h1{
 let availabilityData = [];
 let currentMonth = null;
 let currentYear = null;
+
+let minMonth = null;
+let minYear = null;
 
 fetch('availability.json')
 .then(response => response.json())
@@ -161,12 +179,98 @@ fetch('availability.json')
     currentMonth = firstDate.getMonth();
     currentYear = firstDate.getFullYear();
 
+    minMonth = currentMonth;
+    minYear = currentYear;
+
+    populateMonthDropdown();
     renderCalendar();
 
 });
 
-function renderCalendar()
+function getCurrentMonthKey()
 {
+    return `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}`;
+}
+
+function updateNavigationButtons()
+{
+    const months = getAvailableMonths();
+
+    const currentKey = getCurrentMonthKey();
+
+    document.getElementById('prevMonth').disabled =
+        currentKey === months[0];
+
+    document.getElementById('nextMonth').disabled =
+        currentKey === months[months.length - 1];
+
+    document.getElementById('monthSelect').value = currentKey;
+}
+    
+function getAvailableMonths()
+{
+    const months = [];
+
+    availabilityData.forEach(day => {
+
+        const d = new Date(day.date);
+
+        const key =
+            `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}`;
+
+        if(!months.includes(key))
+        {
+            months.push(key);
+        }
+
+    });
+
+    return months.sort();
+}
+
+function populateMonthDropdown()
+{
+    const monthSelect = document.getElementById('monthSelect');
+
+    monthSelect.innerHTML = '';
+
+    const months = getAvailableMonths();
+
+    months.forEach(monthKey => {
+
+        const parts = monthKey.split('-');
+
+        const year = Number(parts[0]);
+        const month = Number(parts[1]) - 1;
+
+        const labelDate = new Date(year, month, 1);
+
+        const label =
+            labelDate.toLocaleString(
+                'default',
+                {
+                    month:'long',
+                    year:'numeric'
+                }
+            );
+
+        const option = document.createElement('option');
+
+        option.value = monthKey;
+        option.textContent = label;
+
+        if(year === currentYear && month === currentMonth)
+        {
+            option.selected = true;
+        }
+
+        monthSelect.appendChild(option);
+
+    });
+}
+    
+function renderCalendar()
+{  
     const calendar = document.getElementById('calendar');
 
     const availability = {};
@@ -243,18 +347,35 @@ function renderCalendar()
     html += '</div>';
 
     calendar.innerHTML = html;
+
+    updateNavigationButtons();
 }
 
 document
 .getElementById('prevMonth')
 .addEventListener('click', () =>
 {
+    const months = getAvailableMonths();
+
     currentMonth--;
 
     if(currentMonth < 0)
     {
         currentMonth = 11;
         currentYear--;
+    }
+
+    if(!months.includes(getCurrentMonthKey()))
+    {
+        currentMonth++;
+
+        if(currentMonth > 11)
+        {
+            currentMonth = 0;
+            currentYear++;
+        }
+
+        return;
     }
 
     renderCalendar();
@@ -264,6 +385,8 @@ document
 .getElementById('nextMonth')
 .addEventListener('click', () =>
 {
+    const months = getAvailableMonths();
+
     currentMonth++;
 
     if(currentMonth > 11)
@@ -272,9 +395,34 @@ document
         currentYear++;
     }
 
+    if(!months.includes(getCurrentMonthKey()))
+    {
+        currentMonth--;
+
+        if(currentMonth < 0)
+        {
+            currentMonth = 11;
+            currentYear--;
+        }
+
+        return;
+    }
+
     renderCalendar();
 });
 
+document
+.getElementById('monthSelect')
+.addEventListener('change', event =>
+{
+    const parts = event.target.value.split('-');
+
+    currentYear = Number(parts[0]);
+    currentMonth = Number(parts[1]) - 1;
+
+    renderCalendar();
+});
+    
 </script>
 
 </body>
