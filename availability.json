@@ -1,33 +1,14 @@
 [
-  { "date":"2026-07-01", "status":"green" },
-  { "date":"2026-07-02", "status":"green" },
-  { "date":"2026-07-03", "status":"amber" },
-  { "date":"2026-07-04", "status":"green" },
-  { "date":"2026-07-05", "status":"red" },
-  { "date":"2026-07-06", "status":"green" },
-  { "date":"2026-07-07", "status":"green" },
-  { "date":"2026-07-08", "status":"amber" },
-  { "date":"2026-07-09", "status":"green" },
-  { "date":"2026-07-10", "status":"red" },
-  { "date":"2026-07-11", "status":"green" },
-  { "date":"2026-07-12", "status":"amber" },
-  { "date":"2026-07-13", "status":"green" },
-  { "date":"2026-07-14", "status":"red" },
-  { "date":"2026-07-15", "status":"green" },
-  { "date":"2026-07-16", "status":"amber" },
-  { "date":"2026-07-17", "status":"green" },
-  { "date":"2026-07-18", "status":"red" },
-  { "date":"2026-07-19", "status":"green" },
-  { "date":"2026-07-20", "status":"amber" },
-  { "date":"2026-07-21", "status":"green" },
-  { "date":"2026-07-22", "status":"red" },
-  { "date":"2026-07-23", "status":"green" },
-  { "date":"2026-07-24", "status":"amber" },
-  { "date":"2026-07-25", "status":"green" },
-  { "date":"2026-07-26", "status":"red" },
-  { "date":"2026-07-27", "status":"green" },
-  { "date":"2026-07-28", "status":"amber" },
-  { "date":"2026-07-29", "status":"green" },
-  { "date":"2026-07-30", "status":"red" },
-  { "date":"2026-07-31", "status":"green" }
+  {
+    "date":"2026-07-14",
+    "availability":"red"
+  },
+  {
+    "date":"2026-07-15",
+    "availability":"green"
+  },
+  {
+    "date":"2026-07-16",
+    "availability":"amber"
+  }
 ]
