@@ -65,9 +65,23 @@ fetch('availability.json')
     const year = firstDate.getFullYear();
     const month = firstDate.getMonth();
 
-    const monthName = firstDate.toLocaleString('default', {
-        month: 'long'
+    const monthName = firstDate.toLocaleString(
+        'default',
+        { month: 'long' }
+    );
+
+    // Build fast lookup table
+    const availability = {};
+
+    data.forEach(day => {
+        availability[day.date] = day.status;
     });
+
+    const daysInMonth = new Date(
+        year,
+        month + 1,
+        0
+    ).getDate();
 
     let html = `
         <h2>${monthName} ${year}</h2>
@@ -86,29 +100,41 @@ fetch('availability.json')
 
     let startDay = firstDay.getDay();
 
-    if (startDay === 0) startDay = 7;
+    if (startDay === 0)
+    {
+        startDay = 7;
+    }
 
     for(let i = 1; i < startDay; i++)
     {
-        html += `<div class="empty"></div>`;
+        html += '<div class="empty"></div>';
     }
 
-    for(let day of data)
+    for(let day = 1; day <= daysInMonth; day++)
     {
-        const d = new Date(day.date);
+        const dateString =
+            `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 
-        let colour = day.status;
+        let status = availability[dateString] || 'unknown';
 
         html += `
-            <div class="day ${colour}">
-                <div class="number">${d.getDate()}</div>
+            <div class="day ${status}">
+                <div class="number">${day}</div>
             </div>
         `;
     }
 
-    html += "</div>";
+    html += '</div>';
 
     calendar.innerHTML = html;
+
+})
+.catch(error => {
+
+    document.getElementById('calendar').innerHTML =
+        '<p>Unable to load availability data.</p>';
+
+    console.error(error);
 
 });
 
@@ -162,6 +188,10 @@ h1,h2{
 
 .red{
     background:#f8d7da;
+}
+
+.unknown{
+    background:#efefef;
 }
 
 .empty{
