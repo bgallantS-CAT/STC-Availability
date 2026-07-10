@@ -338,13 +338,9 @@ function renderCalendar()
         html += `
             <div
                 class="day ${status}"
-                onclick="showPopup(
-                    '${dateString}',
-                    '${status}',
-                    '${(dayInfo.detail || "No booking details")
-                        .replace(/\n/g,'\\n')
-                        .replace(/'/g,"&#39;")}'
-                )">
+                data-date="${dateString}"
+                data-status="${status}"
+                data-detail="${encodeURIComponent(dayInfo.detail || '')}">
 
                 <div class="number">${day}</div>
 
@@ -355,6 +351,20 @@ function renderCalendar()
     html += '</div>';
 
     calendar.innerHTML = html;
+
+    document.querySelectorAll('.day').forEach(day => {
+
+        day.addEventListener('click', function () {
+
+            showPopup(
+                this.dataset.date,
+                this.dataset.status,
+                decodeURIComponent(this.dataset.detail || '')
+            );
+
+        });
+
+    });
 
     updateNavigationButtons();
 }
@@ -377,11 +387,8 @@ function showPopup(date,status,detail)
     
     document.getElementById('popupDetail').style.whiteSpace = 'pre-line';
     
-    document.getElementById('popupDetail').style.whiteSpace =
-        'pre-line';
-
     document.getElementById('popupDetail').innerText =
-        detail.replace(/\\n/g,'\n') || 'No Bookings';
+        (detail || 'No Bookings').replace(/\\n/g,'\n');
 
     document.getElementById('dayPopup').style.display =
         'block';
