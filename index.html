@@ -71,6 +71,7 @@ h1{
     border-radius:6px;
     position:relative;
     border:1px solid #ccc;
+    cursor:pointer;
 }
 
 .number{
@@ -335,7 +336,7 @@ function renderCalendar()
                 onclick="showPopup(
                     '${dateString}',
                     '${status}',
-                    `${dayInfo.detail || 'No booking details'}`
+                    '${(dayInfo.detail || 'No booking details').replace(/'/g,"&#39;")}'
                 )">
 
                 <div class="number">${day}</div>
@@ -354,11 +355,21 @@ function renderCalendar()
 function showPopup(date,status,detail)
 {
     document.getElementById('popupDate').innerText =
-        date;
+        new Date(date).toLocaleDateString(
+            'en-GB',
+            {
+                weekday:'long',
+                day:'numeric',
+                month:'long',
+                year:'numeric'
+            }
+        );
 
     document.getElementById('popupAvailability').innerText =
         status.toUpperCase();
-
+    
+    document.getElementById('popupDetail').style.whiteSpace = 'pre-line';
+    
     document.getElementById('popupDetail').innerText =
         detail;
 
