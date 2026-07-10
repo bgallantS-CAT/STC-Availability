@@ -96,10 +96,6 @@ h1{
     background:#efefef;
 }
 
-.today{
-    border:3px solid #005eaa;
-}
-
 .empty{
     background:none;
     border:none;
@@ -116,6 +112,11 @@ h1{
     padding:8px 12px;
     border-radius:5px;
     border:1px solid #ccc;
+}
+
+#monthTitle{
+    min-width:160px;
+    text-align:center;
 }
 
 .month-nav button:disabled{
@@ -276,9 +277,8 @@ function renderCalendar()
     const availability = {};
 
     availabilityData.forEach(day => {
-        availability[day.date] = day.availability || 'unknown';
+        availability[day.date] = day;
     });
-
     const monthName =
         new Date(currentYear,currentMonth,1)
         .toLocaleString('default',{month:'long'});
@@ -316,27 +316,23 @@ function renderCalendar()
         html += `<div class="empty"></div>`;
     }
 
-    const today = new Date();
-
     for(let day=1;day<=daysInMonth;day++)
     {
         const dateString =
             `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 
-        const status =
-            availability[dateString] || 'unknown';
+    const dayInfo =
+        availability[dateString] || {
+            availability:'unknown',
+            detail:''
+        };
 
-        const isToday =
-            today.getFullYear() === currentYear
-            &&
-            today.getMonth() === currentMonth
-            &&
-            today.getDate() === day;
+    const status = dayInfo.availability;
 
         html += `
             <div
-                class="day ${status} ${isToday ? 'today' : ''}"
-                title="${status.toUpperCase()}">
+                class="day ${status}"
+                title="${status.toUpperCase()} ${dayInfo.detail ? ' - ' + dayInfo.detail : ''}"
 
                 <div class="number">${day}</div>
 
