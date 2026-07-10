@@ -74,6 +74,11 @@ h1{
     cursor:pointer;
 }
 
+.day:hover{
+    transform:scale(1.03);
+    transition:0.1s;
+}
+    
 .number{
     position:absolute;
     top:8px;
@@ -336,7 +341,9 @@ function renderCalendar()
                 onclick="showPopup(
                     '${dateString}',
                     '${status}',
-                    '${(dayInfo.detail || 'No booking details').replace(/'/g,"&#39;")}'
+                    '${(dayInfo.detail || "No booking details")
+                        .replace(/\n/g,'\\n')
+                        .replace(/'/g,"&#39;")}'
                 )">
 
                 <div class="number">${day}</div>
@@ -370,8 +377,11 @@ function showPopup(date,status,detail)
     
     document.getElementById('popupDetail').style.whiteSpace = 'pre-line';
     
+    document.getElementById('popupDetail').style.whiteSpace =
+        'pre-line';
+
     document.getElementById('popupDetail').innerText =
-        detail;
+        detail.replace(/\\n/g,'\n') || 'No Bookings';
 
     document.getElementById('dayPopup').style.display =
         'block';
