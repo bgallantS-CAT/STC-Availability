@@ -382,8 +382,33 @@ function showPopup(date,status,detail)
             }
         );
 
-    document.getElementById('popupAvailability').innerText =
-        status.toUpperCase();
+    const statusMap = {
+        green: 'Available',
+        amber: 'Limited Availability',
+        red: 'Unavailable',
+        unknown: 'Unknown'
+    };
+
+    const popupStatus =
+        document.getElementById('popupAvailability');
+
+    popupStatus.innerText =
+        statusMap[status] || status;
+
+    popupStatus.style.fontWeight = 'bold';
+
+    if(status === 'green')
+    {
+        popupStatus.style.color = '#2e7d32';
+    }
+    else if(status === 'amber')
+    {
+        popupStatus.style.color = '#b8860b';
+    }
+    else if(status === 'red')
+    {
+        popupStatus.style.color = '#c62828';
+    }
     
     document.getElementById('popupDetail').style.whiteSpace = 'pre-line';
     
