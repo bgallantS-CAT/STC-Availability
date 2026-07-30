@@ -412,8 +412,13 @@ function showPopup(date,status,detail)
     
     document.getElementById('popupDetail').style.whiteSpace = 'pre-line';
     
+    const detailText =
+        detail
+            ? 'Booked:\n' + detail
+            : 'No Bookings';
+
     document.getElementById('popupDetail').innerText =
-        (detail || 'No Bookings').replace(/\\n/g,'\n');
+	detailText.replace(/\\n/g,'\n');
 
     document.getElementById('dayPopup').style.display =
         'block';
